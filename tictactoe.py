@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Tiago Conceição
 m35767
@@ -10,6 +11,7 @@ Speech a free position number to play against the computer
 
 import random
 import sys
+import speech_recognition as sr
 
 # 0 = Easy, 1 = Normal, 2 = Hard
 difficulty = 0
@@ -19,6 +21,10 @@ playerTurn = True
 playerSymbol = {True: 'X', False: 'O'}
 playerName = {True: 'Human', False: 'Computer AI'}
 gameOver = False
+
+answers = {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9}
+
+r = sr.Recognizer()
 
 
 def buildGame():
@@ -38,14 +44,17 @@ def buildGame():
 
 
 def renderGame():
-    if gameOver:
-        return
     print('\n\t===========================\n\t\tTIC-TAC-TOE\n\t===========================')
     buildGame()
     print(game)
+
+    if gameOver:
+        return
+
     if playerTurn:
         print(' Turn: Human')
         print(' HINT: To make a move Speech a free position number.')
+        waitForHumanInput()
     else:
         print(' Turn: Computer AI - Please wait, thinking....')
 
@@ -58,21 +67,27 @@ def playMove(position):
         return
     if position < 0 or position > 8:
         print('Invalid Move, out of bounds')
+        if playerTurn:
+            waitForHumanInput()
         return
 
     if not grid[position].isdigit():
         print('Invalid move, already placed')
+        if playerTurn:
+            waitForHumanInput()
         return
 
     grid[position] = playerSymbol[playerTurn]
-    renderGame()
+
 
     if isWinner():
         gameOver = True
+        renderGame()
         print('Game Over, {0} [{1}] is the winner!'.format(playerName[playerTurn], playerSymbol[playerTurn]))
         return
 
     playerTurn = not playerTurn
+    renderGame()
     if not playerTurn:
         computeMove()
 
@@ -82,7 +97,6 @@ def computeMove():
     if difficulty == 0:
         while True:
             position = random.randint(0, 8)
-            print(position)
             if grid[position].isdigit():
                 playMove(position)
                 break
@@ -97,7 +111,7 @@ def isWinner():
             (grid[7] == le and grid[4] == le and grid[1] == le) or  # down the middle
             (grid[8] == le and grid[5] == le and grid[2] == le) or  # down the right side
             (grid[6] == le and grid[4] == le and grid[2] == le) or  # diagonal Bottom left to top right
-            (grid[8] == le and grid[4] == le and grid[0] == le))    # diagonal Top left to bottom right
+            (grid[8] == le and grid[4] == le and grid[0] == le))  # diagonal Top left to bottom right
 
 
 def restart():
@@ -107,9 +121,62 @@ def restart():
     gameOver = False
 
 
+def waitForHumanInput():
+    if gameOver or not playerTurn:
+        return
+
+    with sr.Microphone() as source:
+        print("Say something!")
+        audio = r.listen(source)
+
+    text = None
+    # recognize speech using Google Speech Recognition
+    try:
+        # for testing purposes, we're just using the default API key
+        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+        # instead of `r.recognize_google(audio)`
+        text = r.recognize_google(audio)
+        processTextFromAudio(text)
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
+    if text is None:
+        # recognize speech using Sphinx
+        try:
+            text = r.recognize_sphinx(audio)
+            processTextFromAudio(text)
+        except sr.UnknownValueError:
+            print("Sphinx could not understand audio")
+        except sr.RequestError as e:
+            print("Sphinx error; {0}".format(e))
+
+
+def processTextFromAudio(text):
+    if text.isdigit():
+        text = int(text)
+        if text < 1 or text > 9:
+            print('Invalid Move, out of bounds, try again')
+            waitForHumanInput()
+            return
+        else:
+            playMove(text-1)
+            return
+    else:
+        if text in answers:
+            playMove(answers[text])
+            return
+
+    print('Invalid Move, not recognized "{0}", try again'.format(text))
+    waitForHumanInput()
+    return
+
+
 def main():
     while True:
         renderGame()
+
         raw = input("Type 'q' to quit or 'r' to restart\n")
 
         if not gameOver and playerTurn and raw.isdigit() and 1 <= int(raw) <= 9:
