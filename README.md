@@ -1,5 +1,31 @@
 # SpeechTicTacToe
-Speech a free position number to play against the computer
+A basic text based tic tac toe game using voice commands.
+Speech a free position number to play against the computer.
+
+# How to play
+* Run 'tictactoe.py' with Python 3.3+
+* Follow console instructions
+* Speech a free position number to play against the computer.
+
+# Game board
+
+
+	===========================
+		TIC-TAC-TOE
+	===========================
+
+	          |     |     
+	       1  |  2  |  3
+	     _____|_____|_____
+	          |     |     
+	       4  |  5  |  6
+	     _____|_____|_____
+	          |     |     
+	       7  |  8  |  9  
+	          |     |
+	          
+	Turn: Human
+    HINT: To make a move Speech a free position number.
 
 
 # Requirements

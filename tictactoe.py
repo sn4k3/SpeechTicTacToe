@@ -1,9 +1,11 @@
 #!/usr/bin/python
 """
-Tiago Conceição
-m35767
 Project 1 - Tic-Tac-Toe
 Multi-modal Systems
+
+Author 1: Tiago Conceição, m35767
+Author 2: Nga Tran Anh Hang, ex13844
+
 
 Tic Tac Toe game
 Speech a free position number to play against the computer
