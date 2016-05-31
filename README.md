@@ -28,6 +28,11 @@ Speech a free position number to play against the computer.
     HINT: To make a move Speech a free position number.
 
 
+# Voice Recognition
+
+In order to improve the quality of the results we use Google API first, if it fails or no network it will use Sphinx in fail-over case.
+
+
 # Requirements
 * Python 3.3+ (required)
 * PyAudio 0.2.9+ (required only if you need to use microphone input, Microphone)
